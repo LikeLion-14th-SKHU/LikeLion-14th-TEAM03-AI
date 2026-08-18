@@ -277,19 +277,22 @@ def get_recommendation_solution(req: RecommendRequest) -> dict:
         own_candidates = products_by_ingredient.get(item.get("ingredient"), [])
         item["products"] = lookup.validate_product_ids(item.get("products", []), own_candidates)
 
-    # 성분 카드에 실제로 배정된 제품 중에서 카테고리별 대표 1개씩만 뽑는다.
-    # (파일 순서에 의존하던 기존 방식 대신, AI가 확정한 성분-제품 매칭을 그대로 재사용)
-    detail_by_category = {}
+    # ==========================
+    # 💡 수정된 부분: recommended 배열에 있는 모든 제품을 빠짐없이 담음
+    # (단, 서로 다른 성분에서 동일한 제품이 추천될 수 있으므로 product_id 기준으로 중복 제거)
+    # ==========================
+    detail_by_id = {}
     for item in cos["recommended"]:
         for pid in item.get("products", []):
             p = lookup.get_product(pid)
-            if p and p["category"] not in detail_by_category:
-                detail_by_category[p["category"]] = p
+            if p and p["product_id"] not in detail_by_id:
+                detail_by_id[p["product_id"]] = p
 
     data["products_detail"] = [
         {"product_id": p["product_id"], "name": p["name"], "category": p["category"]}
-        for p in detail_by_category.values()
+        for p in detail_by_id.values()
     ]
+    # ==========================
 
     data["cleansing"] = {"guide": cleansing_guide, "management": management_guide}
     data["skincare_order"] = routine
