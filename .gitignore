@@ -234,3 +234,9 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,java,intellij,windows,visualstudiocode,react
+
+# Python & AI
+.env
+__pycache__/
+venv/
+*.pyc
